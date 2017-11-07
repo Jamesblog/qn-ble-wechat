@@ -1,0 +1,20 @@
+<!--index.wxml-->
+<view class="container">
+  <view>
+    <button bindtap="onClickRestartScan" type="primary">重新扫描</button>
+  </view>
+  <view>
+    <text>蓝牙状态：<text>{{bleState}}</text></text>
+  </view>
+  <view>
+    <view wx:for="{{devices}}" wx:key="devices">
+
+      <text class="ble-mac">{{item.mac}} </text>
+      
+      <text class="ble-rssi">{{item.RSSI}} </text>
+
+      <button size='mini' bindtap="onClickConnect" data-id="{{item}}">连接</button>
+    </view>
+
+  </view>
+</view>
