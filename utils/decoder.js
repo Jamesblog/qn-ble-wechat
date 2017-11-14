@@ -65,7 +65,7 @@ class decoder {
 
   onDeviceConnectStateChange({ deviceId, connected }) {
     if (connected) {
-      
+
     } else {
       this.wx.closeBLEConnection({ deviceId })
     }
@@ -112,11 +112,37 @@ class decoder {
       fail,
     })
   }
+
   stopScan(success, fail) {
     this.wx.stopBluetoothDevicesDiscovery({
       success,
       fail,
     })
+  }
+
+  getItemName(key) {
+    switch (key) {
+      case 'weight':
+        return '体重';
+      case 'bodyfat':
+        return '体脂率';
+      case 'bmi':
+        return 'BMI';
+      case 'subfat':
+        return "皮下脂肪";
+      case 'bmr':
+        return '基础代谢';
+      case 'bone':
+        return '骨量';
+      case 'muscle':
+        return '骨骼肌率';
+      case 'protein':
+        return '蛋白质';
+      case 'water':
+        return '体水分';
+      default:
+        return key
+    }
   }
 
   connectDevice(device) {
@@ -128,10 +154,10 @@ class decoder {
       success: (res) => {
         console.log("連接成功", res)
         this.wx.getBLEDeviceServices({
-        deviceId: this.device.deviceId,
-        success: this.onGetDeviceServices.bind(this),
-        fail: err => console.error("获取蓝牙服务失败", err)
-      })
+          deviceId: this.device.deviceId,
+          success: this.onGetDeviceServices.bind(this),
+          fail: err => console.error("获取蓝牙服务失败", err)
+        })
       }
     })
   }
@@ -143,24 +169,24 @@ class decoder {
     console.log('收到数据：', cmd)
     switch (data[0]) {
       case 0x12: {
-        this.cmdString = "0x" + cmd
+        this.cmdString = cmd
 
         this.weightScale = (data[10] & 0x01) == 1 ? 100 : 10
 
-        const cmd = this.buildCmd(0x13, scaleType, 0x01, 0x10, 0x00, 0x00, 0x00);
-        this.writeData(cmd)
+        const sendCmd = this.buildCmd(0x13, scaleType, 0x01, 0x10, 0x00, 0x00, 0x00);
+        this.writeData(sendCmd)
         break;
       }
       case 0x10: {
         if (data[5] == 0) {
           console.log("收到不稳定数据")
         } else if (data[5] == 1) {
-          console.log("收到稳定数据")
-          const cmd = this.buildCmd(0x1f, scaleType, 0x10);
+          console.log("收到稳定数据",this.cmdString)
+          const sendCmd = this.buildCmd(0x1f, scaleType, 0x10);
 
-          this.writeData(cmd)
+          this.writeData(sendCmd)
 
-          const scaleString = this.cmdString + this.arrayToHexString(data)
+          const scaleString = this.arrayToHexString(data) + this.cmdString
 
           this.listener.onStartFetch(this.device)
           this.fetchMeasure(scaleString)
@@ -189,21 +215,22 @@ class decoder {
     const bodyString = JSON.stringify(this.bodyParams)
     const toSignString = APP_ID + scaleString + bodyString + SECRET
     const sign = hexMD5(toSignString)
+    const bodyParamString = JSON.stringify({ Body_Height: height.toString(), User_Age: age.toString(), User_Gender: gender.toString() })
     const paramData = {
       app_id: APP_ID,
-      body_params: { Body_Height: height, User_Age: age, User_Gender: gender },
+      body_param: bodyParamString,
       scale: scaleString,
       sign_type: "MD5",
       sign,
     }
-
+    console.log('发送的参数为',paramData)
     this.wx.request({
       url: 'http://open.yolanda.hk/open_api/calcs/qn.json',
       method: "POST",
       data: paramData,
       success: res => {
         const data = res.data.resultData
-        console.log("请求成功", data)
+        console.log("请求成功", res.data, data)
         this.listener.onGetData(this.device, data)
       },
       fail: function (err) {

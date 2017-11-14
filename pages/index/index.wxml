@@ -6,15 +6,33 @@
   <view>
     <text>蓝牙状态：<text>{{bleState}}</text></text>
   </view>
-  <view>
-    <view wx:for="{{devices}}" wx:key="devices">
 
-      <text class="ble-mac">{{item.mac}} </text>
-      
-      <text class="ble-rssi">{{item.RSSI}} </text>
+  <view class="ble-view" wx:for="{{devices}}" wx:key="devices">
+    
+    <view class="ble-mac-view">
+      <text selectable='true'>{{item.mac}} </text>
+    </view>
 
+    <view class="ble-mac-rssi">
+      <text >{{item.RSSI}} </text>
+    </view>
+
+    <view>
       <button size='mini' bindtap="onClickConnect" data-id="{{item}}">连接</button>
     </view>
 
   </view>
+
+ <view class="measure-view" wx:for="{{measure}}" wx:key="measure">
+  
+    <view class="measure-name">
+      <text selectable='true'>{{item.name}}</text>
+    </view>
+
+    <view class="measure-value">
+      <text >{{item.value}} </text>
+    </view>
+
+  </view>
+
 </view>

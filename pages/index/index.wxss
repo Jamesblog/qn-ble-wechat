@@ -5,14 +5,33 @@
   flex-direction: column;
   align-items: center;
 }
-
-.userinfo-avatar {
-  width: 128rpx;
-  height: 128rpx;
-  margin: 20rpx;
-  border-radius: 50%;
+.ble-view{
+  height:80rpx;
+  flex-direction: 'row';
+  display:flex;
+  align-items: 'center';
+  margin-top: 20rpx;
 }
-
+.measure-view{
+  height:40rpx;
+  flex-direction: 'row';
+  display:flex;
+  align-items: 'center';
+  margin-top: 20rpx;
+}
+.measure-name{
+  width: 200rpx;
+}
+.measure-value{
+  width: 200rpx;
+}
+.ble-mac-view{
+  width: 350rpx;
+}
+.ble-mac-rssi{
+  width:100rpx;
+  
+}
 .userinfo-nickname {
   color: #aaa;
 }

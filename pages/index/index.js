@@ -11,6 +11,7 @@ Page({
     canIUse: wx.canIUse('button.open-type.getUserInfo'),
     bleState: "空闲",
     devices: [],
+    measure: [],
   },
   decoder: null,
   //事件处理函数
@@ -23,6 +24,7 @@ Page({
     this.setData({
       bleState: '重启扫描',
       devices: [],
+      measure:[],
     })
     this.decoder.stopScan(function () {
       console.log("停止扫描成功")
@@ -31,7 +33,12 @@ Page({
         this.setData({
           bleState: "启动扫描成功",
         })
-      }.bind(this))
+      }.bind(this), function (err) {
+        this.setData({
+          bleState: "启动扫描失败",
+        })
+        console.log("重启扫描失败",err)
+      })
 
     }.bind(this))
 
@@ -67,11 +74,10 @@ Page({
       })
     } else {
       this.setData({
-        bleState: '连接失败',
+        bleState: '连接已断开',
         devices: [],
       })
 
-      this.decoder.startScan()
     }
   },
   onStartFetch: function (device) {
@@ -82,8 +88,24 @@ Page({
   },
   onGetData: function (device, data) {
     console.log("获取到数据", data)
+    if(!data){
+      this.setData({
+        bleState: '请求数据失败',
+      })
+      return
+    }
+    var propertys = Object.keys(data);
+    var measure = []
+    propertys.forEach(key=>{
+      measure.push({
+        name: this.decoder.getItemName(key),
+        value:data[key],
+      })
+    })
+    
     this.setData({
       bleState: '请求数据成功',
+      measure,
     })
   },
 
